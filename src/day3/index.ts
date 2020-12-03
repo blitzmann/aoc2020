@@ -3,9 +3,9 @@ import { test, readInput } from "../utils/index"
 const prepareInput = (rawInput: string) => rawInput
 
 const input = prepareInput(readInput())
-const matrix = input.split("\n").map(x=>x.trim().split(""))
+const matrix = input.split("\n").map(x => x.trim().split(""))
 
-const traverse = function(matrix, slope:[number, number]) {
+const traverse = function (matrix, slope: [number, number]) {
   const initialWidth = matrix[0].length;
   const initialHeight = matrix.length;
 
@@ -17,19 +17,19 @@ const traverse = function(matrix, slope:[number, number]) {
     if (y >= initialHeight) {
       break
     }
-    if (matrix[y][x % initialWidth] === "#"){
-      treeCount +=1;
+    if (matrix[y][x % initialWidth] === "#") {
+      treeCount += 1;
     }
   }
   return treeCount
 }
 
-const goA = (input) => {  
-  return traverse(matrix, [3,1])
+const goA = (input) => {
+  return traverse(matrix, [3, 1])
 }
 
 const goB = (input) => {
-  let slopes: [number, number][] = [[1,1], [3,1],[5,1],[7,1],[1,2]]
+  let slopes: [number, number][] = [[1, 1], [3, 1], [5, 1], [7, 1], [1, 2]]
   let trees = slopes.map(slope => traverse(matrix, slope))
   const reducer = (accumulator, currentValue) => accumulator * currentValue;
   return trees.reduce(reducer)
