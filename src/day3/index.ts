@@ -3,17 +3,17 @@ import { test, readInput } from "../utils/index"
 const prepareInput = (rawInput: string) => rawInput
 
 const input = prepareInput(readInput())
+const matrix = input.split("\n").map(x=>x.trim().split(""))
 
-const goA = (input) => {
-  let matrix = input.split("\n").map(x=>x.trim().split(""))
-  let initialWidth = matrix[0].length;
-  let initialHeight = matrix.length;
+const traverse = function(matrix, slope:[number, number]) {
+  const initialWidth = matrix[0].length;
+  const initialHeight = matrix.length;
 
-  let x = 0, y = 0;
+  let x = 0, y = 0; // set initial starting point
   let treeCount = 0;
   while (true) {
-    x+=3
-    y+=1
+    x += slope[0]
+    y += slope[1]
     if (y >= initialHeight) {
       break
     }
@@ -24,33 +24,15 @@ const goA = (input) => {
   return treeCount
 }
 
+const goA = (input) => {  
+  return traverse(matrix, [3,1])
+}
+
 const goB = (input) => {
-  let slopes = [[1,1], [3,1],[5,1],[7,1],[1,2]]
-  let matrix = input.split("\n").map(x=>x.trim().split(""))
-  let initialWidth = matrix[0].length;
-  let initialHeight = matrix.length;
-
-  let trees = slopes.map(slope => {
-    let x = 0, y = 0;
-    let treeCount = 0;
-    while (true) {
-      x+=slope[0]
-      y+=slope[1]
-      if (y >= initialHeight) {
-        break
-      }
-      if (matrix[y][x % initialWidth] === "#"){
-        treeCount +=1;
-      }
-    }
-    return treeCount
-  })
+  let slopes: [number, number][] = [[1,1], [3,1],[5,1],[7,1],[1,2]]
+  let trees = slopes.map(slope => traverse(matrix, slope))
   const reducer = (accumulator, currentValue) => accumulator * currentValue;
-
   return trees.reduce(reducer)
-
-
-  
 }
 
 /* Tests */
