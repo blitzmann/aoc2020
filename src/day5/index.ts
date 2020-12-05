@@ -51,7 +51,6 @@ const goB = (input) => {
                 continue
             }
             if (started && !seat) {
-                console.log(row, col)
                 return (row * 8) + col
             }
         }
