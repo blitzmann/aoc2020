@@ -34,13 +34,13 @@ class Passport {
         ['iyr', (value) => +value >= 2010 && +value <= 2020 && value.toString().length === 4],
         ['eyr', (value) => +value >= 2020 && +value <= 2030 && value.toString().length === 4],
         ['hgt', (value) => {
-            let data = value.split(/(\d+)(cm|in)/).filter(x => x !== "")
+            let data = value.split(/^(\d+)(cm|in)$/).filter(x => x !== "")
             let func = this.hgtValidators.get(data[1])
             return data.length === 2 && func && func(data[0])
         }],
-        ['hcl', (value) => value.length === 7 && !!value.match(/#[\d|a-z]{6}/)],
+        ['hcl', (value) => !!value.match(/^#[\d|a-z]{6}$/)],
         ['ecl', (value) => this.validEcl.has(value)],
-        ['pid', (value) => value.length === 9 && !!value.match(/[\d]{9}/)]
+        ['pid', (value) => !!value.match(/^[\d]{9}$/)]
     ])
 
     constructor(rawString: string) {
