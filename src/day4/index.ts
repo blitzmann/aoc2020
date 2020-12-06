@@ -34,7 +34,7 @@ class Passport {
         ['iyr', (value) => +value >= 2010 && +value <= 2020 && value.toString().length === 4],
         ['eyr', (value) => +value >= 2020 && +value <= 2030 && value.toString().length === 4],
         ['hgt', (value) => {
-            let data = value.split(/^(\d+)(cm|in)$/).filter(x => x !== "")
+            let data = value.split(/^(\d+)(cm|in)/).filter(x => x !== "")
             let func = this.hgtValidators.get(data[1])
             return data.length === 2 && func && func(data[0])
         }],
