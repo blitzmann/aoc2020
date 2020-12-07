@@ -1,4 +1,3 @@
-import { getgroups } from "process"
 import { test, readInput } from "../utils/index"
 
 const prepareInput = (rawInput: string) => rawInput
@@ -28,8 +27,10 @@ const goB = (input) => {
     let groupAnswers = groups.map(group => {
         // for part two, we want to only take the intersection of all people in the group.
         // Start with the full question list
-        let answers = new Set('abcdefghijklmnopqrstuvwxyz'.split(''));
-        for (let person of group.split("\n")) {
+        let persons = group.split("\n")
+
+        let answers = new Set(persons[0].split(""));
+        for (let person of persons) {
             // mutate answers as the intersection of this person and the previous answers
             answers = new Set(
                 [...answers].filter(x => new Set(person.split("")).has(x)))
