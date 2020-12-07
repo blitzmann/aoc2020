@@ -5,66 +5,65 @@ const prepareInput = (rawInput: string) => rawInput
 const input = prepareInput(readInput())
 const regex = /(.+) bags contain (.+)./gm;
 
-let req = new Map();
+type BagTuple = [number, string]
+// tuples of number of bags
+let req = new Map<string, BagTuple[]>();
+const add = (accumulator, currentValue) => accumulator + currentValue;
 
 // prep the input
 let m;
 while ((m = regex.exec(input.trim())) !== null) {
+    let [_, outerBag, innerBags] = m
+    let value = []
+    req.set(outerBag, value)
 
-  let [_, outerBag, innerBags] = m
-  let value = []
-  req.set(outerBag, value)
-  if (innerBags === "no other bags") {
-    continue;
-  }
-  for (let bag of innerBags.split(",")) {
-    let matches = bag.trim().match(/(\d+) (.+) bag(.+)?/)
-    value.push([+matches[1], matches[2]])
-  }
-}
+    if (innerBags === "no other bags") {
+        continue;
+    }
 
-const search = (bags) => {
-  for (let bag of bags){
-    if (bag[1] === "shiny gold") {
-      return true;
+    for (let bag of innerBags.split(",")) {
+        let matches = bag.trim().match(/(\d+) (.+) bag(s)?/)
+        value.push([+matches[1], matches[2]])
     }
-    if (search(req.get(bag[1]))){
-      return true
-    }
-  }
 }
 
 const goA = (input) => {
-  
-  let answer = 0
-  for  (let [outer, inner] of req) {    
-    let ret = search(inner)
-    if (ret){
-      answer += 1
+    const search = (bags: BagTuple[]) => {
+        for (let bag of bags) {
+            // we've found our shiny, shortcut 
+            if (bag[1] === "shiny gold") {
+                return true;
+            }
+            // if the inner search returns true, we return true. Otherwise we simply continue with the loop
+            if (search(req.get(bag[1]))) {
+                return true
+            }
+        }
     }
-  }
 
-  return answer
+    let answer = 0
+    for (let [_, inner] of req) {
+        let ret = search(inner)
+        if (ret) {
+            answer += 1
+        }
+    }
 
-}
-
-const search2 = (outer) => {
-  let innerBags = req.get(outer);
-
-  let arr = innerBags.map(inner => {
-    let [num, name] = inner;
-    
-    return num + (num * search2(name))
-  })
-
-   const reducer = (accumulator, currentValue) => accumulator + currentValue;
-  return arr.reduce(reducer, 0)
+    return answer
 }
 
 const goB = (input) => {
-  
-  return search2("shiny gold")
+    const search2 = (outer) => {
+        let innerBags = req.get(outer);
 
+        let arr = innerBags.map(inner => {
+            let [num, name] = inner;
+            return num + (num * search2(name))
+        })
+
+        return arr.reduce(add, 0)
+    }
+    return search2("shiny gold")
 }
 
 /* Tests */
