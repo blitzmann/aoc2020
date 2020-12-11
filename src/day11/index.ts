@@ -4,156 +4,106 @@ const prepareInput = (rawInput: string) => rawInput
 
 const input = prepareInput(readInput())
 
-const directions = {
-  N: [-1, 0],
-  S: [1, 0],
-  E: [0, 1],
-  W: [0, -1],
-  NE: [-1, 1],
-  NW: [-1, -1],
-  SW: [1, -1],
-  SE: [1, 1]
+enum TILETYPE {
+    FLOOR = '.',
+    EMPTY = 'L',
+    OCCUPIED = '#'
 }
 
-function printLayout(layout) {
-  for (let x of layout) {
-    console.log(x.join(''))
-  }
+class Layout {
+    private directions = {
+        N: [-1, 0],
+        S: [1, 0],
+        E: [0, 1],
+        W: [0, -1],
+        NE: [-1, 1],
+        NW: [-1, -1],
+        SW: [1, -1],
+        SE: [1, 1]
+    }
+    constructor(public layout, public expandedVision = false, public tolerance = 4) { }
+
+    run() {
+        let changes: [number, number][] = []
+
+        for (let [ix, row] of this.layout.entries()) {
+            for (let [iy, cell] of row.entries()) {
+                let test = this.testOccupied(ix, iy)
+
+                if (
+                    (cell === TILETYPE.EMPTY && test === 0)
+                    || (cell === TILETYPE.OCCUPIED && test >= this.tolerance)
+                ) {
+                    changes.push([ix, iy])
+                }
+            }
+        }
+
+        for (let [x, y] of changes) {
+            this.layout[x][y] = this.layout[x][y] === TILETYPE.EMPTY ? TILETYPE.OCCUPIED : TILETYPE.EMPTY
+        }
+    }
+
+
+    testOccupied(x, y) {
+        let sum = 0;
+        for (let mod in this.directions) {
+            let modx = x, mody = y
+            do {
+                modx += this.directions[mod][0]
+                mody += this.directions[mod][1]
+                // keep adding until we find a seat
+            } while (this.expandedVision && this.layout[modx]?.[mody] === TILETYPE.FLOOR)
+
+            if (modx < 0 || modx > this.layout.length - 1) {
+                continue
+            }
+            if (mody < 0 || mody > this.layout[0].length - 1) {
+                continue
+            }
+            if (this.layout[modx][mody] === TILETYPE.OCCUPIED) {
+                sum += 1
+            }
+        }
+        return sum
+    }
+
+    get state() {
+        return this.layout.map(x => x.join('')).join('')
+    }
+
+    get numOccupied() {
+        return this.state.split("").filter(x => x === TILETYPE.OCCUPIED).length
+    }
+
+    print() {
+        for (let x of this.layout) {
+            console.log(x.join(''))
+        }
+    }
 }
 
-function state(layout){
-  return layout.map(x=>x.join('')).join('')
+const doRuns = (layout) => {
+    let prevState
+    let state
+    do {
+        prevState = state
+        layout.run()
+        state = layout.state
+    }
+    while (state != prevState)
+
+    return layout.numOccupied
 }
 
 const goA = (input) => {
-  let layout = input.trim().split("\n").map(x => x.split(""))
-
-  printLayout(layout)
-
-  function testOccupied(x, y) {
-    let sum = 0;
-    for (let mod in directions) {
-      let modx = x + directions[mod][0]
-      let mody = y + directions[mod][1]
-
-      if (modx < 0 || modx > layout.length - 1) {
-        continue
-      }
-      if (mody < 0 || mody > layout[0].length - 1) {
-        continue
-      }
-      if (layout[modx][mody] === "#") {
-        sum += 1
-      }
-    }
-    return sum
-  }
-
-
-  function run() {
-    debugger;
-    let changes = []
-
-    for (let [ix, row] of layout.entries()) {
-      for (let [iy, cell] of row.entries()) {
-        // check left
-        let test = testOccupied(ix, iy)
-
-        if ((cell === "L" && test === 0) || (cell === "#" && test >= 4)) {
-          changes.push([ix, iy])
-        }
-      }
-    }
-
-    for (let change of changes) {
-      let [x, y] = change
-      let cell = layout[x][y]
-      if (cell === "L") {
-        layout[x][y] = "#"
-      } else {
-        layout[x][y] = "L"
-      }
-    }
-  }
-
-  let prevState
-  let state
-  do {
-    prevState = state
-    run()
-    state = layout.map(x=>x.join('')).join('')
-  }
-  while (state!=prevState)
-  
-  return state.split("").filter(x=>x==="#").length
+    let layout = new Layout(input.trim().split("\n").map(x => x.split("")))
+    return doRuns(layout)
 }
 
 const goB = (input) => {
-  let layout = input.trim().split("\n").map(x => x.split(""))
-
-  printLayout(layout)
-
-  function testOccupied(x, y) {
-    let sum = 0;
-    for (let mod in directions) {
-      let modx=x, mody=y
-      do {
-        modx += directions[mod][0]
-        mody += directions[mod][1]
-        // keep adding until we find a seat
-      } while (layout[modx] && layout[modx][mody] && layout[modx][mody] === ".")
-
-      if (modx < 0 || modx > layout.length - 1) {
-        continue
-      }
-      if (mody < 0 || mody > layout[0].length - 1) {
-        continue
-      }
-      if (layout[modx][mody] === "#") {
-        sum += 1
-      }
-    }
-    return sum
-  }
-
-
-  function run() {
-    debugger;
-    let changes = []
-
-    for (let [ix, row] of layout.entries()) {
-      for (let [iy, cell] of row.entries()) {
-        // check left
-        let test = testOccupied(ix, iy)
-
-        if ((cell === "L" && test === 0) || (cell === "#" && test >= 5)) {
-          changes.push([ix, iy])
-        }
-      }
-    }
-
-    for (let change of changes) {
-      let [x, y] = change
-      let cell = layout[x][y]
-      if (cell === "L") {
-        layout[x][y] = "#"
-      } else {
-        layout[x][y] = "L"
-      }
-    }
-  }
-
-  let prevState
-  let state
-  do{
-    prevState = state
-    run()
-    state = layout.map(x=>x.join('')).join('')
-  }
-  while (state!=prevState)
-  
-  
-  return state.split("").filter(x=>x==="#").length
+    let layout = new Layout(input.trim().split("\n").map(x => x.split("")), true, 5)
+    return doRuns(layout)
 }
 
 /* Tests */
