@@ -16,7 +16,6 @@ const goA = (input) => {
             maskMap = new Map(line
                 .trim()
                 .split("")
-                .reverse()
                 .map((x, i) => [x, i])
                 .filter(x => x[0] !== "X")
                 .map(x => [x[1], Number(x[0])])
@@ -29,9 +28,7 @@ const goA = (input) => {
                 .toString(2)
                 .padStart(36, "0")
                 .split("")
-                .reverse()
                 .map((x, i) => maskMap.get(i)?.toString() || x)
-                .reverse()
                 .join("")
             memory.set(addr, parseInt(val, 2))
         }
@@ -51,7 +48,6 @@ const goB = (input) => {
             maskMap = new Map(line
                 .trim()
                 .split("")
-                .reverse()
                 .map((x, i) => [x, i])
                 .filter(x => x[0] !== "0")
                 .map(x => [x[1], x[0]])
@@ -59,7 +55,7 @@ const goB = (input) => {
         }
         else {
             var [addr, val] = line.split(/mem\[(\d+)\] = (\d+)/).filter(x => x !== "")
-            const doMap = (x, i)=>{
+            const doMap = (x, i) => {
                 let mapData = maskMap.get(i)?.toString()
                 if (mapData) {
                     if (mapData === "1") {
@@ -74,9 +70,7 @@ const goB = (input) => {
                     .toString(2)
                     .padStart(36, "0")
                     .split("")
-                    .reverse()
                     .map(doMap)
-                    .reverse()
 
             /**
              * to generate the combinations, we can simply count up in binary to the number of combinations
