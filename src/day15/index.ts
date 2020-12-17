@@ -13,54 +13,17 @@ class FixedQueue extends Array {
   }
 }
 
-// class SpokenMap extends Map {
-//   // adds a new turn to a
-//   add(number: number, turn: number) {
-//     if (!this.has(number))
-//     this.unshift(turn)
-//     this.splice(2, this.length - 1)
-//     return this
-//   }
-// }
-
-const goA = (input) => {
-  let numbers = input.split(",")
-
-  // [num, firstTimeSpoken]
-  let spoken = [...numbers.map(x => [+x, true])];
-  let turn = 0;
-  let lastNumber;
-  let firstTime;
-
-  for (let turn = numbers.length; turn < 2020; turn++) {
-    let num = numbers[turn % numbers.length]
-    let prevNum = spoken[turn - 1]
-    let spokenSet = new Set([...spoken.map(x => x[0])])
-    let speak;
-    if (prevNum[1] === true) {
-      speak = 0;
-    } else {
-      let prevSpeaks = spoken.map((x, i) => [x, i]).filter(x => x[0][0] === prevNum[0]).reverse();
-      speak = prevSpeaks[0][1] - prevSpeaks[1][1]
-    }
-    let res = [+speak, !spokenSet.has(speak)]
-    spoken.push(res)
-  }
-
-  return spoken[spoken.length - 1][0]
-}
-
 const LOOKBACK_WINDOW = 1_000 // we take the last x spoken, join them, and see if they exist in the last LOOKBACK
 const LOOKBACK = 10_000
 const CHECK_FREQ = 1_000 // every x turns, we check
 
-const goB = (input) => {
+const findAnswer = (input, iterations) => {
   let numbers = input.split(",").map(Number)
 
   let spoken = [];
   let spokenTurn = new Map<number, FixedQueue>()
 
-  for (let turn = 0; turn < 30000000; turn++) {
+  for (let turn = 0; turn < iterations; turn++) {
     let speak;
 
     if (turn < numbers.length) {
@@ -98,11 +61,16 @@ const goB = (input) => {
     //     return
     //   }
     // }
-
   }
-
   return spoken[spoken.length - 1]
+}
 
+const goA = (input) => {
+  return findAnswer(input, 2020)
+}
+
+const goB = (input) => {
+  return findAnswer(input, 30_000_000)
 }
 
 /* Tests */

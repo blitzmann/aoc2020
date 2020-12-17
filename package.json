@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node ./scripts/start.js"
+    "start": "node --inspect ./scripts/start.js"
   },
   "devDependencies": {
     "@types/node": "^12.12.14",
