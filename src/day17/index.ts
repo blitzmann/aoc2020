@@ -5,26 +5,25 @@ const prepareInput = (rawInput: string) => rawInput
 const input = prepareInput(readInput())
 // let cube = new Map<string, boolean>()
 
-function* comboGenerator(x: number, y: number, z: number) {
+function* comboGenerator(z: number, y: number, x: number) {
     for (let newX = x - 1; newX <= x + 1; newX++) {
         for (let newY = y - 1; newY <= y + 1; newY++) {
             for (let newZ = z - 1; newZ <= z + 1; newZ++) {
-                if (JSON.stringify([x, y, z]) !== JSON.stringify([newX, newY, newZ])) {
-                    yield [newX, newY, newZ]
+                if (JSON.stringify([z, y, x]) !== JSON.stringify([newZ, newY, newX])) {
+                    yield [newZ, newY, newX]
                 }
             }
         }
     }
 }
 
-
-function* comboGenerator2(x: number, y: number, z: number, w: number) {
+function* comboGenerator2(w: number, z: number, y: number, x: number) {
     for (let newX = x - 1; newX <= x + 1; newX++) {
         for (let newY = y - 1; newY <= y + 1; newY++) {
             for (let newZ = z - 1; newZ <= z + 1; newZ++) {
                 for (let newW = w - 1; newW <= w + 1; newW++) {
-                    if (JSON.stringify([x, y, z, w]) !== JSON.stringify([newX, newY, newZ, newW])) {
-                        yield [newX, newY, newZ, newW]
+                    if (JSON.stringify([w, z, y, x]) !== JSON.stringify([newW, newZ, newY, newX])) {
+                        yield [newW, newZ, newY, newX]
                     }
                 }
             }
@@ -32,49 +31,44 @@ function* comboGenerator2(x: number, y: number, z: number, w: number) {
     }
 }
 
-const INITIAL_SIZE = 26 // needs to be even because #lazy
-const INITIAL_SIZE2 = 40 // needs to be even because #lazy
-const printZ = (cube: boolean[][][], z) => {
-    for (let y of cube[(INITIAL_SIZE / 2) + z]) {
-        console.log(y.map((b, i) => b ? "#" : ".").join(""))
-    }
-}
-
 const goA = (input) => {
+    input = input.trim().split("\n")
+    const CYCLES = 6
+    const DIMENSIONS = 3
+    const INITIAL_SIZE = 2 * Math.ceil(input[0].length + (CYCLES * DIMENSIONS) / 2.0)  // needs to be even because #lazy
+
     let cube: boolean[][][] = Array.from(Array(INITIAL_SIZE), () => Array.from(Array(INITIAL_SIZE), () => new Array(INITIAL_SIZE).fill(false)))
     // 11 
-    input
-        .trim()
-        .split("\n")
-        .forEach((y, yi) => y.split("").forEach((x, xi) => {
-            cube[INITIAL_SIZE / 2][(INITIAL_SIZE / 2) + yi][(INITIAL_SIZE / 2) + xi] = x === "#"
-        }));
 
-    for (let _ = 0; _ < 6; _++) {
+    input.forEach((y, yi) => y.split("").forEach((x, xi) => {
+        cube[INITIAL_SIZE / 2][(INITIAL_SIZE / 2) + yi][(INITIAL_SIZE / 2) + xi] = x === "#"
+    }));
+
+    for (let _ = 0; _ < CYCLES; _++) {
         let toggles = new Set<[number, number, number]>()
         for (let [zi, z] of cube.entries()) {
             for (let [yi, y] of z.entries()) {
                 for (let [xi, x] of y.entries()) {
                     let isActive = !!x
                     let acc = 0;
-                    for (let [newX, newY, newZ] of comboGenerator(xi, yi, zi)) {
+                    for (let [newZ, newY, newX] of comboGenerator(zi, yi, xi)) {
                         if (cube[newZ]?.[newY]?.[newX] === true) {
                             acc += 1
                         }
                     }
                     if (isActive) {
                         if (!(acc === 2 || acc === 3)) {
-                            toggles.add([xi, yi, zi])
+                            toggles.add([zi, yi, xi])
                         }
                     }
                     if (!isActive && acc === 3) {
-                        toggles.add([xi, yi, zi])
+                        toggles.add([zi, yi, xi])
                     }
                 }
             }
         }
 
-        for (let [x, y, z] of toggles) {
+        for (let [z, y, x] of toggles) {
             cube[z][y][x] = !cube[z][y][x]
         }
     }
@@ -83,49 +77,59 @@ const goA = (input) => {
 }
 
 const goB = (input) => {
-    let cube: boolean[][][][] = Array.from(Array(INITIAL_SIZE2), () => Array.from(Array(INITIAL_SIZE2), () => Array.from(Array(INITIAL_SIZE), () => new Array(INITIAL_SIZE).fill(false))))
-    // 11 
-    input
-        .trim()
-        .split("\n")
-        .forEach((y, yi) => y.split("").forEach((x, xi) => {
-            cube[INITIAL_SIZE2 / 2][INITIAL_SIZE2 / 2][(INITIAL_SIZE2 / 2) + yi][(INITIAL_SIZE2 / 2) + xi] = x === "#"
-        }));
+    input = input.trim().split("\n")
+    const CYCLES = 6
+    const DIMENSIONS = 3
+    const INITIAL_SIZE = 2 * Math.ceil(input[0].length + (CYCLES * DIMENSIONS) / 2.0)  // needs to be even because #lazy
 
-    for (let _ = 0; _ < 6; _++) {
+    let cube: boolean[][][][] = Array.from(
+        Array(INITIAL_SIZE), () =>
+        Array.from(Array(INITIAL_SIZE), () =>
+            Array.from(Array(INITIAL_SIZE), () =>
+                new Array(INITIAL_SIZE).fill(false)
+            )
+        )
+    )
+    // 11 
+
+    input.forEach((y, yi) => y.split("").forEach((x, xi) => {
+        cube[INITIAL_SIZE / 2][INITIAL_SIZE / 2][(INITIAL_SIZE / 2) + yi][(INITIAL_SIZE / 2) + xi] = x === "#"
+    }));
+
+    for (let _ = 0; _ < CYCLES; _++) {
         let toggles = new Set<[number, number, number, number]>()
         for (let [wi, w] of cube.entries()) {
             for (let [zi, z] of w.entries()) {
                 for (let [yi, y] of z.entries()) {
                     for (let [xi, x] of y.entries()) {
-                    
-                        let isActive = !!w
+                        let isActive = !!x
                         let acc = 0;
-                        for (let [newX, newY, newZ, newW] of comboGenerator2(xi, yi, zi, wi)) {
+                        for (let [newW, newZ, newY, newX] of comboGenerator2(wi, zi, yi, xi)) {
                             if (cube[newW]?.[newZ]?.[newY]?.[newX] === true) {
                                 acc += 1
                             }
                         }
                         if (isActive) {
                             if (!(acc === 2 || acc === 3)) {
-                                toggles.add([xi, yi, zi, wi])
+                                toggles.add([wi, zi, yi, xi])
                             }
                         }
                         if (!isActive && acc === 3) {
-                            toggles.add([xi, yi, zi, wi])
+                            toggles.add([wi, zi, yi, xi])
                         }
                     }
                 }
             }
-
-            for (let [x, y, z, w] of toggles) {
-                cube[w][z][y][x] = !cube[w][z][y][x]
-            }
         }
 
+
+        for (let [w, z, y, x] of toggles) {
+            cube[w][z][y][x] = !cube[w][z][y][x]
+        }
     }
-    return cube.flatMap((x) => x.flatMap(w => w.flat())).filter(Boolean).length
-    
+
+    return cube.flatMap((x) => x.flatMap(y => y.flat())).filter(Boolean).length
+
 }
 
 /* Tests */
