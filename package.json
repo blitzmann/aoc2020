@@ -17,7 +17,7 @@
   "dependencies": {
     "@arrows/composition": "^1.2.1",
     "get-caller-file": "^2.0.5",
-    "js-combinatorics": "^1.4.5",
+    "js-combinatorics": "^1.5.7",
     "kleur": "^3.0.3"
   }
 }
